@@ -1,5 +1,6 @@
 import IMP.pmi.io.crosslink
 import IMP.pmi.macros
+import IMP.pmi.dof
 import IMP.atom
 import numpy
 
@@ -61,8 +62,34 @@ def _classify_crosslinks_by_score(self, number_of_classes):
     self._update()
 
 
+# Monkey patch DegreesOfFreedom._setup_srb to incorporate a post-2.11 bug fix
+def _setup_srb(self,hiers,max_trans,max_rot,axis):
+    if axis is None:
+        srbm = IMP.pmi.TransformMover(hiers[0][0].get_model(), max_trans, max_rot)
+    else:
+        srbm = IMP.pmi.TransformMover(hiers[0][0].get_model(),axis[0],axis[1],max_trans, max_rot)
+    srbm.set_was_used(True)
+    super_rigid_rbs,super_rigid_xyzs = IMP.pmi.tools.get_rbs_and_beads(hiers)
+    ct = 0
+    self.movers_particles_map[srbm]=[]
+    for h in hiers:
+        self.movers_particles_map[srbm]+=IMP.atom.get_leaves(h)
+    for xyz in super_rigid_xyzs:
+        srbm.add_xyz_particle(xyz)
+        ct+=1
+    for rb in super_rigid_rbs:
+        srbm.add_rigid_body_particle(rb)
+        ct+=1
+    if ct>1:
+        return srbm
+    else:
+        return 0
+
+
+
 if IMP.__version__ == '2.11.1':
     IMP.pmi.macros.AnalysisReplicaExchange.align = _align
     IMP.pmi.io.crosslink.CrossLinkDataBase.append_database = _append_database
     IMP.pmi.io.crosslink.CrossLinkDataBase.classify_crosslinks_by_score \
         = _classify_crosslinks_by_score
+    IMP.pmi.dof.DegreesOfFreedom._setup_srb = _setup_srb
