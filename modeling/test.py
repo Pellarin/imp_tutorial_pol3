@@ -15,6 +15,7 @@ import IMP.rmf
 
 import IMP.pmi.macros
 import IMP.pmi.topology
+import tutorial_util
 
 import os
 import sys
@@ -174,7 +175,10 @@ xl1.append_database(xl2)
 xl1.rename_proteins({"ABC14.5":"ABC14_5"})
 
 # Create 3 confidence classes
-xl1.classify_crosslinks_by_score(3)
+# In IMP git and 2.12 release
+# xl1.classify_crosslinks_by_score(3)
+# For IMP 2.11, use our own utility function to do this:
+tutorial_util.classify_crosslinks_by_score(xl1, 3)
 
 
 
