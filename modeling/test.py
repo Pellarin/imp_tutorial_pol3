@@ -1,13 +1,9 @@
-
-
 from __future__ import print_function
 
 import IMP
 import IMP.core
 import IMP.pmi.restraints.crosslinking
 import IMP.pmi.restraints.stereochemistry
-import IMP.pmi.restraints.em
-import IMP.pmi.representation
 import IMP.pmi.tools
 import IMP.pmi.samplers
 import RMF
@@ -17,7 +13,6 @@ import IMP.pmi.macros
 import IMP.pmi.topology
 import tutorial_util
 
-import os
 import sys
 
 import warnings
@@ -175,12 +170,7 @@ xl1.append_database(xl2)
 xl1.rename_proteins({"ABC14.5":"ABC14_5"})
 
 # Create 3 confidence classes
-# In IMP git and 2.12 release
-# xl1.classify_crosslinks_by_score(3)
-# For IMP 2.11, use our own utility function to do this:
-tutorial_util.classify_crosslinks_by_score(xl1, 3)
-
-
+xl1.classify_crosslinks_by_score(3)
 
 # Now, we set up the restraint.
 xl1rest = IMP.pmi.restraints.crosslinking.CrossLinkingMassSpectrometryRestraint(
