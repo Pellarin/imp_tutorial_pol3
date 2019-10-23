@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 import IMP
 import GoodScoringModelSelector
 import os,sys,string,math
@@ -31,7 +31,7 @@ def select_good_scoring_models():
      
     # process input
     arg=parse_args()
-    print arg.selection_keywords_list 
+    print(arg.selection_keywords_list)
     gsms=GoodScoringModelSelector.GoodScoringModelSelector(arg.run_dir,arg.run_prefix)
                
     gsms.get_good_scoring_models(selection_keywords_list=arg.selection_keywords_list,printing_keywords_list=arg.printing_keywords_list,
@@ -47,7 +47,7 @@ def create_score_files(field="Total_Score"):
         model_file = open("filter/model_ids_scores.txt","r")
     else:
         model_file = open("good_scoring_models/model_ids_scores.txt","r")
-    print "Creating input files for Total_Score convergence test"
+    print("Creating input files for Total_Score convergence test")
 
     for line_index,each_model_line in enumerate(model_file.readlines()):
 
@@ -62,11 +62,11 @@ def create_score_files(field="Total_Score"):
             fields = each_model_line.strip().split()
             score=fields[ts_ix]
             if int(fields[run_ix])==1:
-                print >> scoreA,score
+                print(score, file=scoreA)
             elif int(fields[run_ix])==2:
-                print >> scoreB,score
+                print(score, file=scoreB)
             else:
-                print "create_scores_file: model_ids_scores.txt file has an incorrect format."
+                print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
                 exit()
     scoreA.close()
     scoreB.close()
@@ -83,6 +83,6 @@ if __name__ == "__main__" :
     if arg.extract:
         create_score_files()
 
-        print "Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py"
+        print("Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py")
     else:
-        print "Model score file at ./filter/model_ids_scores.txt"
+        print("Model score file at ./filter/model_ids_scores.txt")

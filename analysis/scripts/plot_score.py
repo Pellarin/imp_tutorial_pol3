@@ -1,3 +1,4 @@
+from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -13,9 +14,9 @@ if sf=="True":
     show=True
 
 if column=="all":
-    print "Plotting all columns"
+    print("Plotting all columns")
     for k in scores.columns:
-        print k, "|| Mean:", scores[k].mean(), "| SD:", scores[k].std()
+        print(k, "|| Mean:", scores[k].mean(), "| SD:", scores[k].std())
         plt.hist(scores[k],bins=100)
         plt.xlabel(k)
         plt.ylabel('P')
@@ -25,7 +26,7 @@ if column=="all":
         plt.clf()
 elif column in list(scores.columns.values):
 
-    print column, "|| Mean:", scores[column].mean(), "| SD:", scores[column].std()
+    print(column, "|| Mean:", scores[column].mean(), "| SD:", scores[column].std())
     plt.hist(scores[column], bins=100)
     plt.xlabel(column)
     plt.ylabel('P')
@@ -35,7 +36,7 @@ elif column in list(scores.columns.values):
     else:
         plt.savefig(column+".jpg", dpi=300)
 else:
-    print column, "is not a valid score parameter. Use one of:"
-    print scores.columns.values
+    print(column, "is not a valid score parameter. Use one of:")
+    print(scores.columns.values)
 
 

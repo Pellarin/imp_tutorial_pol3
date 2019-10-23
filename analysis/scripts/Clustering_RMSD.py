@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys,random,numpy,math
 import pickle
 
@@ -33,7 +34,7 @@ def get_cutoffs_list(distmat, gridSize):
     mindist = distmat.min()
     maxdist = distmat.max()
 
-    print "Minimum and maximum pairwise model distances:",mindist, maxdist
+    print("Minimum and maximum pairwise model distances:",mindist, maxdist)
     cutoffs=numpy.arange(mindist,maxdist,gridSize)
     return cutoffs
 
@@ -96,10 +97,10 @@ def get_contingency_table(num_clusters,cluster_members,all_models,run1_models,ru
             model_index=all_models[member]
 
             if model_index in run1_models:
-                #print "run1", model_index
+                #print("run1", model_index)
                 full_ctable[ic][0]+=1.0
 	    elif model_index in run2_models:
-		#print "run2", model_index
+		#print("run2", model_index)
                 full_ctable[ic][1]+=1.0
 
     ## now normalize by number of models in each run
@@ -158,7 +159,7 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
         cvs.append(cramersv)
         percents.append(percent_explained)
         
-        print >>f1, c, pval, cramersv, percent_explained
+        print(c, pval, cramersv, percent_explained, file=f1) 
 
     return pvals, cvs, percents
 
