@@ -6,12 +6,9 @@ import os,sys,string,pandas
 
 score_file=sys.argv[1]
 column=sys.argv[2]
-sf=sys.argv[3]
 
 scores=pandas.read_csv(score_file, sep=' ')
-show=False
-if sf=="True":
-    show=True
+show = (len(sys.argv) >= 4 and sys.argv[3] == "True")
 
 if column=="all":
     print("Plotting all columns")
