@@ -275,6 +275,71 @@ print(last_step.num_models_end)
 # Correct number of output models to account for multiple runs
 last_step.num_models_end = 200000
 
+# Get last protocol in the file
+protocol = s.orphan_protocols[-1]
+# State that we filtered the 200000 frames down to one cluster of
+# 100 models:
+import ihm.analysis
+analysis = ihm.analysis.Analysis()
+protocol.analyses.append(analysis)
+analysis.steps.append(ihm.analysis.ClusterStep(
+                      feature='RMSD', num_models_begin=200000,
+                      num_models_end=100))
+
+mg = ihm.model.ModelGroup(name="Cluster 0")
+
+# Make DCD of all models in cluster
+dcd_filename = '../analysis/cluster.0/allmodels.dcd'
+num_models = 0
+with open(dcd_filename, 'wb') as dcd_fh:
+    dcd = ihm.model.DCDWriter(dcd_fh)
+    for sample in ('A', 'B'):
+        file_for_id = {}
+        with open('../analysis/Identities_%s.txt' % sample) as fh:
+            for line in fh:
+                filename, model_id = line.rstrip('\r\n').split()
+                file_for_id[model_id] = filename
+        with open('../analysis/cluster.0.sample_%s.txt' % sample) as fh:
+            for line in fh:
+                model_id = line.rstrip('\r\n')
+                if num_models % 10 == 0:
+                    print("Convert RMF %d to DCD" % num_models)
+                num_models += 1
+                rh = RMF.open_rmf_file_read_only(
+                    '../analysis/%s' % file_for_id[model_id])
+                IMP.rmf.link_hierarchies(rh, [root_hier])
+                IMP.rmf.load_frame(rh, RMF.FrameID(0))
+                del rh
+                m = po.add_model(mg)
+                dcd.add_model(m)
+                del mg[-1]
+
+dcd_location = ihm.location.OutputFileLocation(
+    path=dcd_filename,
+    details="Coordinates of all structures in the largest cluster")
+
+e = ihm.model.Ensemble(model_group=mg, num_models=num_models,
+                       post_process=analysis.steps[-1],
+                       name="Cluster 0", file=dcd_location)
+s.ensembles.append(e)
+s.state_groups[-1][-1].append(mg)
+
+# Add the model from RMF
+rh = RMF.open_rmf_file_read_only('../analysis/cluster.0/cluster_center_model.rmf3')
+IMP.rmf.link_hierarchies(rh, [root_hier])
+IMP.rmf.load_frame(rh, RMF.FrameID(0))
+del rh
+m = po.add_model(e.model_group)
+
+em, = [r for r in s.restraints if isinstance(r, ihm.restraint.EM3DRestraint)]
+em.fits[m] = ihm.restraint.EM3DRestraintFit(cross_correlation_coefficient=None)
+
+for comp in ('C31', 'C34', 'C82'):
+    asym = po.asym_units['%s.0' % comp]
+    loc = ihm.location.OutputFileLocation('../analysis/cluster.0/LPD_%s.mrc' % comp)
+    den = ihm.model.LocalizationDensity(file=loc, asym_unit=asym)
+    e.densities.append(den)
+
 import ihm.dumper
 with open('rnapoliii.cif', 'w') as fh:
     ihm.dumper.write(fh, [s])
