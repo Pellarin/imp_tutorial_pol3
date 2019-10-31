@@ -40,7 +40,7 @@ replica_number = rex_obj.get_my_index()
 output_prefix=""
 step=int(1)
 
-datadirectory = "data/"
+datadirectory = "../data/"
 topology_file = datadirectory+"topology_poliii.cryoem.txt"
 target_gmm_file=datadirectory+'%d_imp.gmm'%(step)
 output_dir='.'
@@ -275,6 +275,30 @@ print(last_step.num_models_end)
 # Correct number of output models to account for multiple runs
 last_step.num_models_end = 200000
 
+import os
+
+def get_cluster_members(analysis_dir, cluster_num):
+    """Get filenames of RMF files in the given cluster"""
+    num_models = 0
+    for sample in ('A', 'B'):
+        file_for_id = {}
+        with open(os.path.join(analysis_dir,
+                               'Identities_%s.txt' % sample)) as fh:
+            for line in fh:
+                filename, model_id = line.rstrip('\r\n').split()
+                file_for_id[model_id] = filename
+        with open(os.path.join(analysis_dir,
+                               'cluster.%d.sample_%s.txt' % (cluster_num, sample))) as fh:
+            for line in fh:
+                model_id = line.rstrip('\r\n')
+                num_models += 1
+                yield os.path.join(analysis_dir, file_for_id[model_id])
+                # In the interests of speed and space, let's just get
+                # 10 models from each sample
+                if num_models % 10 == 0:
+                    break
+all_cluster_0_models = list(get_cluster_members('../analysis', 0))
+
 # Get last protocol in the file
 protocol = s.orphan_protocols[-1]
 # State that we filtered the 200000 frames down to one cluster of
@@ -284,47 +308,36 @@ analysis = ihm.analysis.Analysis()
 protocol.analyses.append(analysis)
 analysis.steps.append(ihm.analysis.ClusterStep(
                       feature='RMSD', num_models_begin=200000,
-                      num_models_end=100))
+                      num_models_end=len(all_cluster_0_models)))
 
 mg = ihm.model.ModelGroup(name="Cluster 0")
+s.state_groups[-1][-1].append(mg)
 
 # Make DCD of all models in cluster
 dcd_filename = '../analysis/cluster.0/allmodels.dcd'
 num_models = 0
 with open(dcd_filename, 'wb') as dcd_fh:
     dcd = ihm.model.DCDWriter(dcd_fh)
-    for sample in ('A', 'B'):
-        file_for_id = {}
-        with open('../analysis/Identities_%s.txt' % sample) as fh:
-            for line in fh:
-                filename, model_id = line.rstrip('\r\n').split()
-                file_for_id[model_id] = filename
-        with open('../analysis/cluster.0.sample_%s.txt' % sample) as fh:
-            for line in fh:
-                model_id = line.rstrip('\r\n')
-                if num_models % 10 == 0:
-                    print("Convert RMF %d to DCD" % num_models)
-                num_models += 1
-                rh = RMF.open_rmf_file_read_only(
-                    '../analysis/%s' % file_for_id[model_id])
-                IMP.rmf.link_hierarchies(rh, [root_hier])
-                IMP.rmf.load_frame(rh, RMF.FrameID(0))
-                del rh
-                m = po.add_model(mg)
-                dcd.add_model(m)
-                del mg[-1]
+    for model_file in all_cluster_0_models:
+        rh = RMF.open_rmf_file_read_only(model_file)
+        IMP.rmf.link_hierarchies(rh, [root_hier])
+        IMP.rmf.load_frame(rh, RMF.FrameID(0))
+        del rh
+        m = po.add_model(mg)
+        dcd.add_model(m)
+        del mg[-1]
 
 dcd_location = ihm.location.OutputFileLocation(
     path=dcd_filename,
     details="Coordinates of all structures in the largest cluster")
 
-e = ihm.model.Ensemble(model_group=mg, num_models=num_models,
+e = ihm.model.Ensemble(model_group=mg,
+                       num_models=len(all_cluster_0_models),
                        post_process=analysis.steps[-1],
                        name="Cluster 0", file=dcd_location)
 s.ensembles.append(e)
-s.state_groups[-1][-1].append(mg)
 
-# Add the model from RMF
+# Add the cluster center model from RMF
 rh = RMF.open_rmf_file_read_only('../analysis/cluster.0/cluster_center_model.rmf3')
 IMP.rmf.link_hierarchies(rh, [root_hier])
 IMP.rmf.load_frame(rh, RMF.FrameID(0))
