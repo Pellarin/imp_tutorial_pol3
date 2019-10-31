@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from __future__ import print_function
 
 # Imports needed to use ProtocolOutput
@@ -242,29 +244,31 @@ po.finalize()
 
 s = po.system
 
-# All subunits
-print([a.details for a in s.asym_units])
+print("all subunits:",
+      [a.details for a in s.asym_units])
 
-# Primary sequence of first subunit
-print("".join(r.code for r in s.asym_units[0].entity.sequence))
+print("first subunit sequence:",
+      "".join(r.code for r in s.asym_units[0].entity.sequence))
 
-# Restraints on the system
-print(s.restraints)
+print("all restraints on the system:", s.restraints)
 
-print([r.dataset for r in s.restraints])
+print("restraint datasets:", [r.dataset for r in s.restraints])
 
 # Dataset for XL-MS restraint
 d = s.restraints[0].dataset
-print(d.location.path, d.location.details)
+print("XL-MS dataset at:", d.location.path)
+print("Details:", d.location.details)
 
 # Dataset for EM restraint
 d = s.restraints[1].dataset
 print("GMM file at", d.location.path)
-print("Derived from EMDB entry", d.parents[0].location.access_code)
+print("is derived from EMDB entry", d.parents[0].location.access_code)
 
 # Definitions of some common crosslinkers
 import ihm.cross_linkers
-xl, = [r for r in s.restraints if hasattr(r, 'linker')]
+
+# There should be exactly one XL restraint on the system
+xl, = [r for r in s.restraints if isinstance(r, ihm.restraint.CrossLinkRestraint)]
 xl.linker = ihm.cross_linkers.dss
 
 # Get last step of last protocol (protocol is an 'orphan' because
@@ -301,8 +305,7 @@ all_cluster_0_models = list(get_cluster_members('../analysis', 0))
 
 # Get last protocol in the file
 protocol = s.orphan_protocols[-1]
-# State that we filtered the 200000 frames down to one cluster of
-# 100 models:
+# State that we filtered the 200000 frames down to one cluster:
 import ihm.analysis
 analysis = ihm.analysis.Analysis()
 protocol.analyses.append(analysis)
@@ -311,6 +314,8 @@ analysis.steps.append(ihm.analysis.ClusterStep(
                       num_models_end=len(all_cluster_0_models)))
 
 mg = ihm.model.ModelGroup(name="Cluster 0")
+
+# Add to last state
 s.state_groups[-1][-1].append(mg)
 
 # Make DCD of all models in cluster
@@ -325,6 +330,7 @@ with open(dcd_filename, 'wb') as dcd_fh:
         del rh
         m = po.add_model(mg)
         dcd.add_model(m)
+        # We only want the model in DCD, not mmCIF
         del mg[-1]
 
 dcd_location = ihm.location.OutputFileLocation(
@@ -342,7 +348,7 @@ rh = RMF.open_rmf_file_read_only('../analysis/cluster.0/cluster_center_model.rmf
 IMP.rmf.link_hierarchies(rh, [root_hier])
 IMP.rmf.load_frame(rh, RMF.FrameID(0))
 del rh
-m = po.add_model(e.model_group)
+m = po.add_model(mg)
 
 em, = [r for r in s.restraints if isinstance(r, ihm.restraint.EM3DRestraint)]
 em.fits[m] = ihm.restraint.EM3DRestraintFit(cross_correlation_coefficient=None)
@@ -359,3 +365,5 @@ with open('rnapoliii.cif', 'w') as fh:
 
 #with open('rnapoliii.bcif', 'wb') as fh:
 #    ihm.dumper.write(fh, [s], format='BCIF')
+
+
