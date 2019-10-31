@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 ls imp_tutorial_pol3_xl_cryoem_premodeling/modeling/
 
@@ -7,6 +7,9 @@ ls imp_tutorial_pol3_xl_cryoem_premodeling/modeling/A_output_3/rmfs/
 mkdir -p modeling/run1
 ln -sf ../../imp_tutorial_pol3_xl_cryoem_premodeling/modeling/A_output_3 \
        modeling/run1/output
+
+python scripts/show_stat.py modeling/run1/output/stat.0.out \
+       |grep -v MonteCarlo | cut -f1 -d\| | uniq
 
 python scripts/select_good_scoring_models.py \
     -rd modeling -rp run \
@@ -65,5 +68,5 @@ python scripts/select_good_scoring_models.py \
 
 python scripts/Master_Sampling_Exhaustiveness_Analysis.py \
        -n rnapoliii -p good_scoring_models/ \
-       -d density_ranges.txt -m cpu_omp \
-       -c 8 -a -g 0.1 -gp
+       -d density_ranges.txt -m cpu_omp -c 8 \
+       -a -g 0.1 -gp
