@@ -359,9 +359,39 @@ for comp in ('C31', 'C34', 'C82', 'C53', 'C37'):
     den = ihm.model.LocalizationDensity(file=loc, asym_unit=asym)
     e.densities.append(den)
 
+datarepo = ihm.location.Repository(doi="10.5281/zenodo.3523241",
+            root="../data", top_directory='data',
+            url="https://zenodo.org/record/3523241/files/data.tar.gz")
+clusterrepo = ihm.location.Repository(doi="10.5281/zenodo.3523241",
+            root="../analysis/cluster.0", top_directory='cluster.0',
+            url="https://zenodo.org/record/3523241/files/cluster.0.tar.gz")
+s.update_locations_in_repositories([datarepo, clusterrepo])
+
+# Dataset for XL-MS restraint
+d = s.restraints[0].dataset
+print("XL-MS dataset at %s/%s inside %s"
+      % (d.location.repo.top_directory,
+         d.location.path, d.location.repo.url))
+
+# First localization density
+d = e.densities[0]
+print("Localization density at %s/%s inside %s"
+       % (d.file.repo.top_directory,
+          d.file.path, d.file.repo.url))
+
 import ihm.dumper
 with open('rnapoliii.cif', 'w') as fh:
     ihm.dumper.write(fh, [s])
 
 #with open('rnapoliii.bcif', 'wb') as fh:
 #    ihm.dumper.write(fh, [s], format='BCIF')
+
+import ihm.reader
+with open('rnapoliii.cif') as fh:
+    s, = ihm.reader.read(fh)
+print(s.title, s.restraints, s.ensembles, s.state_groups)
+
+import urllib.request
+with urllib.request.urlopen('https://pdb-dev.wwpdb.org/static/cif/PDBDEV_00000014.cif') as fh:
+    s, = ihm.reader.read(fh)
+print(s.title, s.restraints, s.ensembles, s.state_groups)
