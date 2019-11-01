@@ -353,7 +353,7 @@ m = po.add_model(mg)
 em, = [r for r in s.restraints if isinstance(r, ihm.restraint.EM3DRestraint)]
 em.fits[m] = ihm.restraint.EM3DRestraintFit(cross_correlation_coefficient=None)
 
-for comp in ('C31', 'C34', 'C82'):
+for comp in ('C31', 'C34', 'C82', 'C53', 'C37'):
     asym = po.asym_units['%s.0' % comp]
     loc = ihm.location.OutputFileLocation('../analysis/cluster.0/LPD_%s.mrc' % comp)
     den = ihm.model.LocalizationDensity(file=loc, asym_unit=asym)
