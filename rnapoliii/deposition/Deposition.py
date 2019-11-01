@@ -365,5 +365,3 @@ with open('rnapoliii.cif', 'w') as fh:
 
 #with open('rnapoliii.bcif', 'wb') as fh:
 #    ihm.dumper.write(fh, [s], format='BCIF')
-
-
