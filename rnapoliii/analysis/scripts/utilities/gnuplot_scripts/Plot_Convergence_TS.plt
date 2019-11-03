@@ -24,7 +24,12 @@ set xlabel "Number of Models" tc rgb "#484848" font "Arial-Bold, 57"
 set ylabel "Best score" tc rgb "#484848" font "Arial-Bold, 57"
 set key tc rgb "#484848"
 
-set linetype 5 dashtype 2 lw 10
+if (GPVAL_VERSION >= 5) {
+  set linetype 5 dashtype 2 lw 10
+} else {
+  set linetype 5 lw 10
+}
+
 set arrow nohead from  minx,B_max to maxx,B_max  lt 5 lc rgb "red"
 
 set output sprintf("%s.Top_Score_Conv.pdf", sysname)

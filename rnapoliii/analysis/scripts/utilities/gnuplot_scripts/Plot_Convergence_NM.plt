@@ -23,7 +23,12 @@ set xlabel "Threshold ({\305})" tc rgb "#484848" font "Arial-Bold, 57"
 set ylabel "Convergence Criteria" tc rgb "#484848" font "Arial-Bold, 57"
 
 set key above width -2 vertical maxrows 3 tc rgb "#484848"
-set linetype 5 dashtype 2 lw 10
+
+if (GPVAL_VERSION >= 5) {
+  set linetype 5 dashtype 2 lw 10
+} else {
+  set linetype 5 lw 10
+}
 
 set arrow nohead from 0,0.05 to maxx,0.05 lt 5 lw 10 lc rgb "#FF4500" back filled
 set arrow nohead from 0,0.10 to maxx,0.10 lt 5 lw 10 lc rgb "#5B6FB5" back filled
