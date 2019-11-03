@@ -50,6 +50,8 @@ wc -l filter/model_ids_scores.txt
 
 cat <<END > density_ranges.txt
 density_custom_ranges={
+    'C53':['C53'],
+    'C37':['C37'],
     'C82':['C82'],
     'C34':['C34'],
     'C31':['C31'] }

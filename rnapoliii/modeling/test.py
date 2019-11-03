@@ -38,7 +38,7 @@ if len(sys.argv)>1:
     output_prefix=A
 step=int(1)
 
-datadirectory = "../rnapoliii/data/"
+datadirectory = "../data/"
 topology_file = datadirectory+"topology_poliii.cryoem.txt" 
 target_gmm_file=datadirectory+'%d_imp.gmm'%(step)
 output_dir='.'
