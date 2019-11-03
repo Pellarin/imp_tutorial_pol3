@@ -359,12 +359,12 @@ for comp in ('C31', 'C34', 'C82', 'C53', 'C37'):
     den = ihm.model.LocalizationDensity(file=loc, asym_unit=asym)
     e.densities.append(den)
 
-datarepo = ihm.location.Repository(doi="10.5281/zenodo.3526614",
+datarepo = ihm.location.Repository(doi="10.5281/zenodo.3526621",
             root="../data", top_directory='data',
-            url="https://zenodo.org/record/3526614/files/data.tar.gz")
-clusterrepo = ihm.location.Repository(doi="10.5281/zenodo.3526614",
+            url="https://zenodo.org/record/3526621/files/data.zip")
+clusterrepo = ihm.location.Repository(doi="10.5281/zenodo.3526621",
             root="../analysis/cluster.0", top_directory='cluster.0',
-            url="https://zenodo.org/record/3526614/files/cluster.0.tar.gz")
+            url="https://zenodo.org/record/3526621/files/cluster.0.zip")
 s.update_locations_in_repositories([datarepo, clusterrepo])
 
 # Dataset for XL-MS restraint
