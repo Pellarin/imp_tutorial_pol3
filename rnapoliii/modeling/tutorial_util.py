@@ -30,15 +30,12 @@ def _append_database(self,CrossLinkDataBase2):
 # bug fix
 def _align(self):
     tr = IMP.atom.get_transformation_aligning_first_to_second(self.sel1_alignment, self.sel0_alignment)
-
     for rb in self.rbs1:
         IMP.core.transform(rb, tr)
-        for bead in self.beads1:
-            try:
-                IMP.core.transform(IMP.core.XYZ(bead), tr)
-            except:
-                continue
-        self.model.update()
+    for bead in self.beads1:
+        if not IMP.core.NonRigidMember.get_is_setup(bead):
+            IMP.core.transform(IMP.core.XYZ(bead), tr)  
+    self.model.update()
 
 # Monkey patch AnalysisReplicaExchange.__init__ to incorporate a post-2.11
 # bug fix
