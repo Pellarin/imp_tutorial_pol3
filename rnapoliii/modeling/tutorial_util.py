@@ -110,12 +110,14 @@ def _get_output(self):
 def _write_seed(self, file_name, nreplicas):
     rmf_name = file_name
     o=IMP.pmi.output.Output()
-    o.init_rmf(rmf_name, [are.stath1])
+    if nreplicas > len(self.stath1):
+        raise ValueError('number of replicas exceeding the number of structures')
+    o.init_rmf(rmf_name, [self.stath1], listofobjects=[self.stath1])
 
     structures=[]
     nloop=0
     while len(structures) < nreplicas:
-        for c in are:
+        for c in self:
             try:
                 structures.append(c.members[nloop])
             except:
@@ -123,7 +125,7 @@ def _write_seed(self, file_name, nreplicas):
         nloop+=1
 
     for n in structures:
-        are.stath1[n]
+        self.stath1[n]
         o.write_rmf(rmf_name)
 
     o.close_rmf(rmf_name)
