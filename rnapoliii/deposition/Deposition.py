@@ -252,6 +252,10 @@ print("first subunit sequence:",
 
 print("all restraints on the system:", s.restraints)
 
+import ihm.dumper
+with open('initial.cif', 'w') as fh:
+    ihm.dumper.write(fh, [s])
+
 print("restraint datasets:", [r.dataset for r in s.restraints])
 
 # Dataset for XL-MS restraint
