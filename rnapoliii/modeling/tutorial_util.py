@@ -1,5 +1,6 @@
 import IMP.pmi.io.crosslink
 import IMP.pmi.macros
+import IMP.pmi.output
 import IMP.pmi.dof
 import IMP.atom
 import numpy
@@ -101,6 +102,32 @@ def _classify_crosslinks_by_score(self, number_of_classes):
                 xl[self.psi_key]=str("CLASS_"+str(n))
     self._update()
 
+# This method isn't in IMP 2.11, so patch it in
+def _get_output(self):
+    return self[self.current_index].features
+
+# This method isn't in IMP 2.11, so patch it in
+def _write_seed(self, file_name, nreplicas):
+    rmf_name = file_name
+    o=IMP.pmi.output.Output()
+    o.init_rmf(rmf_name, [are.stath1])
+
+    structures=[]
+    nloop=0
+    while len(structures) < nreplicas:
+        for c in are:
+            try:
+                structures.append(c.members[nloop])
+            except:
+                continue
+        nloop+=1
+
+    for n in structures:
+        are.stath1[n]
+        o.write_rmf(rmf_name)
+
+    o.close_rmf(rmf_name)
+
 
 # Monkey patch DegreesOfFreedom._setup_srb to incorporate a post-2.11 bug fix
 def _setup_srb(self,hiers,max_trans,max_rot,axis):
@@ -125,11 +152,36 @@ def _setup_srb(self,hiers,max_trans,max_rot,axis):
     else:
         return 0
 
+# Monkey patch DegreesOfFreedom._setup_srb to incorporate a post-2.11 bug fix
+def _save_coordinates(self,cluster,rmf_name=None,reference="Absolute", prefix="./"):
+    """
+    Save the coordinates of the current cluster a single rmf file
+    """
+    print("saving coordinates",cluster)
+    if self.alignment: self.set_reference(reference,cluster)
+    o=IMP.pmi.output.Output()
+    if rmf_name is None:
+        rmf_name=prefix+'/'+str(cluster.cluster_id)+".rmf3"
+
+    d1=self.stath1[cluster.members[0]]
+    self.model.update()
+    o.init_rmf(rmf_name, [self.stath1], listofobjects=[self.stath1])
+    for n1 in cluster.members:
+        d1=self.stath1[n1]
+        self.model.update()
+        self.apply_molecular_assignments(n1)
+        if self.alignment: self.align()
+        o.write_rmf(rmf_name)
+        self.undo_apply_molecular_assignments(n1)
+    o.close_rmf(rmf_name)
 
 
 if IMP.__version__ == '2.11.1':
     IMP.pmi.macros.AnalysisReplicaExchange.__init__ = _init
+    IMP.pmi.macros.AnalysisReplicaExchange.write_seed = _write_seed
+    IMP.pmi.macros.AnalysisReplicaExchange.save_coordinates = _save_coordinates
     IMP.pmi.macros.AnalysisReplicaExchange.align = _align
+    IMP.pmi.output.StatHierarchyHandler.get_output= _get_output
     IMP.pmi.io.crosslink.CrossLinkDataBase.append_database = _append_database
     IMP.pmi.io.crosslink.CrossLinkDataBase.classify_crosslinks_by_score \
         = _classify_crosslinks_by_score
