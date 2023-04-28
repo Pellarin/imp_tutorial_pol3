@@ -211,9 +211,9 @@ outputobjects.append(gem)
 
 # ## Stage 3 - Sampling <a name="Sampling_2"></a>
 # 
-# With the system representation built and data restraints entered, the system is now ready to sample configurations. A replica exchange run can be set up using the `ReplicaExchange0` macro:
+# With the system representation built and data restraints entered, the system is now ready to sample configurations. A replica exchange run can be set up using the `ReplicaExchange` macro:
 # 
-# See the [ReplicaExchange0 documentation](https://integrativemodeling.org/nightly/doc/ref/classIMP_1_1pmi_1_1macros_1_1ReplicaExchange0.html) for a full description of all of the input parameters.
+# See the [ReplicaExchange documentation](https://integrativemodeling.org/nightly/doc/ref/classIMP_1_1pmi_1_1macros_1_1ReplicaExchange.html) for a full description of all of the input parameters.
 # 
 # The sampling is performed by executing the macro:
 # 
@@ -227,7 +227,7 @@ if not quick:
     num_frames = 2
 
     # This object defines all components to be sampled as well as the sampling protocol
-    mc1=IMP.pmi.macros.ReplicaExchange0(m,
+    mc1=IMP.pmi.macros.ReplicaExchange(m,
               root_hier=root_hier,                         # The root hierarchy
               monte_carlo_sample_objects=dof.get_movers()+xl1rest.get_movers(), # All moving particles and parameters
               rmf_output_objects=outputobjects,            # Objects to put into the rmf file
