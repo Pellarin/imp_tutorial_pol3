@@ -326,7 +326,7 @@ are.set_rmsd_selection(molecules=["C31","C34","C53","C37","C82"])
 
 are.cluster(10.0)
 
-# see the contant of the "are" object
+# see the content of the "are" object
 print(are)
 
 #print the cluster info

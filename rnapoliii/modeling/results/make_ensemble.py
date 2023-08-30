@@ -40,7 +40,7 @@ are.set_alignment_selection(molecules=['ABC23','ABC10beta','ABC14_5','ABC27','C2
 
 #are.cluster(20.0)
 
-# see the contant of the "are" object
+# see the content of the "are" object
 #print(are)
 
 #print the cluster info
