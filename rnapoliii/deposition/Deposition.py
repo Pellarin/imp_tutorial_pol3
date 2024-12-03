@@ -366,6 +366,6 @@ with open('rnapoliii.cif') as fh:
 print(s.title, s.restraints, s.ensembles, s.state_groups)
 
 import urllib.request
-with urllib.request.urlopen('https://pdb-dev.wwpdb.org/static/cif/PDBDEV_00000014.cif') as fh:
+with urllib.request.urlopen('https://pdb-ihm.org/cif/8zze.cif') as fh:
     s, = ihm.reader.read(fh)
 print(s.title, s.restraints, s.ensembles, s.state_groups)
